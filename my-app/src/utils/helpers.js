@@ -1,7 +1,8 @@
-export const calculateAge = (dobString) => {
+export const calculateAge = (dobString,referenceDateString) => {
   if (!dobString) return 0;
   const dob = new Date(dobString);
-  const cutoff = new Date('2025-01-01');
+   const cutoff = referenceDateString ? new Date(referenceDateString) : new Date();
+  
   let age = cutoff.getFullYear() - dob.getFullYear();
   const m = cutoff.getMonth() - dob.getMonth();
   if (m < 0 || (m === 0 && cutoff.getDate() < dob.getDate())) {
@@ -64,4 +65,19 @@ export const calculateArtRankingScore = (grade) => {
     'F': 0
   };
   return scoreMap[grade] || 0;
+};
+// utils/helpers.js
+
+// ... keep your existing calculateAge and other helpers ...
+
+export const parseMediums = (code) => {
+  if (!code) return [];
+  const mediums = [];
+  const upperCode = code.toUpperCase();
+  
+  if (upperCode.includes('S')) mediums.push('Sinhala');
+  if (upperCode.includes('T')) mediums.push('Tamil');
+  if (upperCode.includes('E')) mediums.push('English');
+  
+  return mediums;
 };

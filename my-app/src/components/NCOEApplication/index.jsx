@@ -1,42 +1,102 @@
-import React, { useState } from 'react';
-import { COURSES, INITIAL_FORM_STATE,LANG_SUB_COURSES } from '../../constants';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useFormValidation } from '../../hooks/useFormValidation';
+import { parseMediums } from '../../utils/helpers';
+import DynamicQualForm from './DynamicQualForm';
+import RequirementsCard from './RequirementsCard';
+
+// Components
 import Header from './Header';
 import CourseSelector from './CourseSelector';
 import MediumSelector from './MediumSelector';
-import InfoPopup from './shared/InfoPopup';
 import PersonalInfoForm from './PersonalInfoForm';
 import ALevelForm from './ALevelForm';
 import OLevelForm from './OLevelForm';
-import AdditionalQualifications from './AdditionalQualifications';
 import DocumentUpload from './DocumentUpload';
 import ValidationSummary from './ValidationSummary';
 
+// Backend URL
+const API_URL = "http://localhost:8080/Courses/";
+
 export default function NCOEApplication() {
-  const [activeTab, setActiveTab] = useState(COURSES.PRIMARY);
-  const [subTab, setSubTab] = useState('Sinhala'); 
-  const [specificMedium, setSpecificMedium] = useState('Sinhala');
-  const [showReligionPopup, setShowReligionPopup] = useState(false);
-  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  // --- STATE ---
+  const [courses, setCourses] = useState([]);
+   const [globalDeadline, setGlobalDeadline] = useState(null); 
 
-  const { errors, canApply } = useFormValidation(formData, activeTab, subTab, specificMedium);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleTabSwitch = (course) => {
-    setActiveTab(course);
+  // Selection State
+  const [activeCourseId, setActiveCourseId] = useState(null);
+  const [activeSubCourseId, setActiveSubCourseId] = useState(null);
+  const [selectedMedium, setSelectedMedium] = useState('');
+
+  // Form Data
+  const [formData, setFormData] = useState({
+    fullName: '', nic: '', dob: '', alYear: '', zScore: '',
+    // ... initialize other fields based on your previous code
+  });
+
+  // --- 1. LOAD DATA FROM BACKEND ---
+ useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Run fetches in parallel
+        const [coursesRes, deadlineRes] = await Promise.all([
+          axios.get(API_URL),                 // Get Courses
+          axios.get(`${API_URL}deadline`)     // Get Deadline
+        ]);
+
+        setCourses(coursesRes.data);
+        
+        // 2. SET DEADLINE STATE
+        // The backend returns object: { id: 1, closingDate: "2025-11-28" }
+        if (deadlineRes.data && deadlineRes.data.closingDate) {
+          setGlobalDeadline(deadlineRes.data.closingDate);
+        }
+
+        // ... existing default selection logic ...
+
+      } catch (error) {
+        console.error("Error loading data", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // --- HELPERS ---
+  const activeCourse = courses.find(c => c.courseId === activeCourseId);
+  const activeSubCourse = activeCourse?.subCourses?.find(sc => sc.subCourseId === activeSubCourseId);
+
+    // Get the configurations specifically for the active Sub-Course
+  const dynamicConfigs = activeSubCourse?.additionalConfigs || [];
+  // --- HANDLERS ---
+  const handleCourseSwitch = (courseId) => {
+    setActiveCourseId(courseId);
     
-    if (course === COURSES.RELIGION) {
-      setSubTab('Buddhism'); 
-      setShowReligionPopup(true);
-    } else if (course === COURSES.ART) {
-      setSubTab('Art'); 
-      setSpecificMedium('Sinhala'); 
-    } else if (course === COURSES.LANGUAGE_LIT) {
-      setSubTab(LANG_SUB_COURSES[0]);
-    } else if (course === COURSES.ENGLISH) {
-      setSubTab('English');
+    // Auto-select first sub-course of the new course
+    const newCourse = courses.find(c => c.courseId === courseId);
+    if (newCourse?.subCourses?.length > 0) {
+      const firstSub = newCourse.subCourses[0];
+      setActiveSubCourseId(firstSub.subCourseId);
+      
+      // Reset Medium
+      const meds = parseMediums(firstSub.mediumLanguage);
+      setSelectedMedium(meds[0] || '');
     } else {
-      setSubTab('Sinhala'); 
+      setActiveSubCourseId(null);
     }
+  };
+  
+
+  const handleSubCourseSwitch = (subId) => {
+    setActiveSubCourseId(subId);
+    // When sub-course changes, reset medium to the first available one
+    const sub = activeCourse.subCourses.find(sc => sc.subCourseId === subId);
+    const meds = parseMediums(sub?.mediumLanguage);
+    setSelectedMedium(meds[0] || '');
   };
 
   const handleInputChange = (e) => {
@@ -47,116 +107,54 @@ export default function NCOEApplication() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if(canApply) {
-      alert("Application Submitted Successfully! (Simulated)");
-      console.log('Form Data:', formData);
-    } else {
-      alert("Please fix all validation errors before submitting.");
-    }
-  };
+  // Logic to determine form validation (Update hook to accept activeSubCourse objects)
+  const { errors, canApply } = useFormValidation(formData, activeSubCourse,activeCourse,globalDeadline,selectedMedium);
+
+  if (isLoading) return <div className="text-center p-10">Loading Courses...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans relative">
-      
-      <InfoPopup 
-        show={showReligionPopup}
-        onClose={() => setShowReligionPopup(false)}
-        title="Eligibility Warning"
-        message="You can only apply for the religion you belong to."
-      />
-
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
-        
         <Header />
         
-        <CourseSelector activeTab={activeTab} onTabChange={handleTabSwitch} />
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
-          
+        {/* 1. Dynamic Course Tabs */}
+        <CourseSelector 
+          courses={courses} 
+          activeId={activeCourseId} 
+          onSelect={handleCourseSwitch} 
+        />
+        
+        <form className="p-6">
+          {/* 2. SubCourse & Medium Selector (Handles "STE" parsing) */}
           <MediumSelector 
-            activeTab={activeTab}
-            subTab={subTab}
-            setSubTab={setSubTab}
-            specificMedium={specificMedium}
-            setSpecificMedium={setSpecificMedium}
+            activeCourse={activeCourse}
+            activeSubCourseId={activeSubCourseId}
+            onSubCourseSelect={handleSubCourseSwitch}
+            selectedMedium={selectedMedium}
+            onMediumSelect={setSelectedMedium}
           />
-
-          <PersonalInfoForm 
-            formData={formData} 
-            onChange={handleInputChange} 
-            activeTab={activeTab}
-          />
-
-          <ALevelForm 
-            formData={formData} 
-            onChange={handleInputChange}
-            activeTab={activeTab}
-            subTab={subTab}
-          />
-
-          <OLevelForm 
-            formData={formData} 
-            onChange={handleInputChange}
-            activeTab={activeTab}
-            subTab={subTab}
-          />
-
-          <AdditionalQualifications 
-            activeTab={activeTab}
-            subTab={subTab}
-            formData={formData}
-            onChange={handleInputChange}
-          />
-
+          {activeSubCourse && (
+             <RequirementsCard course={activeCourse} subCourse={activeSubCourse} globalDeadline={globalDeadline} />
+          )}
+          
+          <PersonalInfoForm formData={formData} onChange={handleInputChange} />
+          
+          
+          
+          {/* Pass activeSubCourse to forms so they can check specific Rules */}
+          <ALevelForm formData={formData} onChange={handleInputChange} />
+          <OLevelForm formData={formData} onChange={handleInputChange} />
+           <DynamicQualForm 
+                configs={dynamicConfigs} 
+                formData={formData} 
+                onChange={handleInputChange} 
+             />
+          
           <DocumentUpload onChange={handleInputChange} />
-
-          <div className="mt-8">
-            <ValidationSummary errors={errors} canApply={canApply} />
-            <button 
-              type="submit" 
-              disabled={!canApply} 
-              className={`w-full py-4 rounded-lg font-bold text-lg shadow-lg transition-all
-                ${canApply 
-                  ? 'bg-blue-900 text-white hover:bg-blue-800 hover:shadow-xl' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-            >
-              Submit Application
-            </button>
-          </div>
-
+          <ValidationSummary errors={errors} canApply={canApply} />
+          
         </form>
       </div>
-      
-      <style>{`
-        .input-field { 
-          width: 100%; 
-          padding: 0.5rem; 
-          border: 1px solid #d1d5db; 
-          border-radius: 0.375rem; 
-          margin-top: 0.25rem; 
-          font-size: 0.875rem; 
-        }
-        .input-field:focus { 
-          outline: none; 
-          border-color: #1e3a8a; 
-          box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.2); 
-        }
-        .label-text { 
-          font-size: 0.875rem; 
-          font-weight: 600; 
-          color: #374151; 
-        }
-        .section-title { 
-          font-size: 1.125rem; 
-          font-weight: 700; 
-          color: #1e3a8a; 
-          display: flex; 
-          align-items: center; 
-        }
-      `}</style>
     </div>
   );
 }
