@@ -41,7 +41,7 @@ const AdditionalQualifications = ({ activeTab, subTab, formData, onChange }) => 
   return <SecondLangQualifications formData={formData} onChange={onChange} subTab={subTab} />;
 }
 
-  // 3. Default: Return nothing if no additional qualifications are needed
+  // 3. Default - Return nothing if no additional qualifications are needed
  return null;
 };
 

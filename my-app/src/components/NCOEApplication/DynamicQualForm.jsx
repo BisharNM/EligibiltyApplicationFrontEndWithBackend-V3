@@ -5,7 +5,6 @@ export default function DynamicQualForm({ configs, formData, onChange }) {
   
   if (!configs || configs.length === 0) return null;
 
-  // Helper to determine how many inputs to render for files
   const getRenderCount = (limitStr) => {
     if (!limitStr || limitStr === "ANY") return 1;
     const num = parseInt(limitStr, 10);
@@ -28,7 +27,7 @@ export default function DynamicQualForm({ configs, formData, onChange }) {
               {config.inputLabel}
             </label>
 
-            {/* 2. TEXT INPUT LOGIC */}
+            {/* 2. Text Input Logic */}
             {config.inputType === 'text' && (
               <input 
                 type="text"
@@ -40,7 +39,7 @@ export default function DynamicQualForm({ configs, formData, onChange }) {
               />
             )}
 
-            {/* 3. RADIO INPUT LOGIC (Assuming Yes/No if no options provided in DB) */}
+            
             {config.inputType === 'radio' && (
               <div className="flex gap-4">
                 <label className="flex items-center text-sm cursor-pointer">
@@ -68,7 +67,7 @@ export default function DynamicQualForm({ configs, formData, onChange }) {
               </div>
             )}
 
-            {/* 4. FILE INPUT LOGIC (Handles File Count Limit) */}
+            {/*File Input Logic (Handles File Count Limit) */}
             {config.inputType === 'file' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Create an array based on fileCountLimit (e.g. 2 -> [0, 1]) */}
@@ -83,7 +82,7 @@ export default function DynamicQualForm({ configs, formData, onChange }) {
                       </div>
                       <input 
                         type="file" 
-                        // Unique name: dynamic_ID_Index (e.g., dynamic_5_0, dynamic_5_1)
+                        // Unique name dynamic_ID_Index (e.g., dynamic_5_0, dynamic_5_1)
                         name={`dynamic_${config.configId}_file_${index}`}
                         onChange={onChange}
                         className="block w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200" 

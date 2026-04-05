@@ -30,9 +30,7 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
       }
     }
 
-    // ==============================================================================
-    // 1. GENERAL CHECKS
-    // ==============================================================================
+    // 1. General Checks
     if (formData.maritalStatus === 'married') {
       newErrors.push("Eligibility: Applicant must be Unmarried.");
     }
@@ -43,15 +41,15 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
       newErrors.push(`Common Requirement: You must have at least 3 Passes in G.C.E A/L (You have ${totalALPasses}).`);
     }
 
-    // --- 1.3 O/L BASELINE (6 Passes, 3 Credits) ---
+    //  O/L Baseline (6 Passes, 3 Credits) 
     const userOLGrades = [
       formData.olReligion, formData.olLang, formData.olMath, 
       formData.olScience, formData.olEnglish, formData.olHistory,
       formData.olBucket1Grade, formData.olBucket2Grade, formData.olBucket3Grade
     ];
 
-    const totalOLPassess = userOLGrades.filter(g => getGradeValue(g) >= 1).length; // S or better
-    const totalOLCredits = userOLGrades.filter(g => getGradeValue(g) >= 2).length; // C or better
+    const totalOLPassess = userOLGrades.filter(g => getGradeValue(g) >= 1).length; 
+    const totalOLCredits = userOLGrades.filter(g => getGradeValue(g) >= 2).length; 
 
     if (totalOLPassess < 9) {
       newErrors.push(`Common Requirement: You must have at least 6 Passes in G.C.E O/L (You have ${totalOLPassess}).`);
@@ -77,7 +75,7 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
         const isPassed = userGrade && getGradeValue(userGrade) >= getGradeValue(rule.grade);
 
         if (rule.status === true) {
-          // COMPULSORY ERROR (Already specific)
+          // Compulsory Error (Already specific)
           if (!isPassed) {
             newErrors.push(`A/L Compulsory: You must pass '${rule.alSubject}' with '${rule.grade}' or higher.`);
             missingCompulsory = true;
@@ -85,14 +83,14 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
             alRulesMetCount++;
           }
         } else {
-          // OPTIONAL TRACKING
+          
           if (isPassed) {
             alRulesMetCount++;
           }
         }
       });
 
-      // --- THE UPDATED COUNT ERROR MESSAGE ---
+      //  The Updated Count Error Message 
       if (!missingCompulsory) {
         if (alRulesMetCount < counts.alSubjectCount) {
           
@@ -130,15 +128,13 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
       newErrors.push(`Age Eligibility: You are ${age} years old. The maximum age for this course is ${maxAge}.`);
     }
     
-    // ==============================================================================
     // 2. A/L VALIDATION (Compulsory + Count Logic)
-    // ==============================================================================
     if (activeSubCourse.alRules && activeSubCourse.alRules.length > 0) {
       let alRulesMetCount = 0;
       let missingCompulsory = false;
 
       // 1. Collect User's Passed Subjects (Subject Name -> Grade)
-      // We normalize names to lowercase to ensure matching works
+      
       const userALMap = {};
       if (formData.alSubject1 && getGradeValue(formData.alGrade1) >= 1) userALMap[formData.alSubject1.toLowerCase()] = formData.alGrade1;
       if (formData.alSubject2 && getGradeValue(formData.alGrade2) >= 1) userALMap[formData.alSubject2.toLowerCase()] = formData.alGrade2;
@@ -150,22 +146,22 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
         const isPassed = userGrade && getGradeValue(userGrade) >= getGradeValue(rule.grade);
 
         if (rule.status === true) {
-          // COMPULSORY CHECK
+          // Compulsory check
           if (!isPassed) {
             newErrors.push(`A/L Compulsory: You must pass '${rule.alSubject}' with '${rule.grade}' or higher.`);
             missingCompulsory = true;
           } else {
-            alRulesMetCount++; // Met a rule
+            alRulesMetCount++; 
           }
         } else {
-          // OPTIONAL CHECK
+          // Optional Check
           if (isPassed) {
-            alRulesMetCount++; // Met a rule
+            alRulesMetCount++; 
           }
         }
       });
 
-      // COUNT CHECK (Only if they passed the compulsory ones first)
+      // Count Check (Only if they passed the compulsory ones first)
       if (!missingCompulsory) {
         if (alRulesMetCount < counts.alSubjectCount) {
           newErrors.push(`A/L Requirement: You must pass ${counts.alSubjectCount} subjects from the required list (You matched ${alRulesMetCount}).`);
@@ -180,15 +176,14 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
       }
     }
 
-    // ==============================================================================
+    
     // 3. O/L VALIDATION (Compulsory + Count Logic)
-    // ==============================================================================
     if (activeSubCourse.olRules && activeSubCourse.olRules.length > 0) {
       let olRulesMetCount = 0;
       let missingCompulsoryOL = false;
 
       activeSubCourse.olRules.forEach(rule => {
-        // Helper to find User's Grade for this rule
+        
         let userGrade = 'F';
         const ruleSub = rule.olSubject.toLowerCase();
 
@@ -209,7 +204,6 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
         const isPassed = getGradeValue(userGrade) >= getGradeValue(rule.grade);
 
         if (rule.status === true) {
-          // COMPULSORY
           if (!isPassed) {
             newErrors.push(`O/L Compulsory: You must pass '${rule.olSubject}' with '${rule.grade}' or higherrrr.`);
             missingCompulsoryOL = true;
@@ -226,14 +220,14 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
 
       if (!missingCompulsoryOL) {
         if (olRulesMetCount < counts.olSubjectCount) {
-           // Note: This checks specific subject matches. 
-           // If you also need to check "Any 6 Passes" regardless of rules, keep the generic check below.
+           //  checks specific subject matches. 
+           
            newErrors.push(`O/L Subject Selection: You must pass ${counts.olSubjectCount} subjects from the specific required list.`);
         }
       }
     }
 
-    // 4. GENERIC O/L COUNT (Total Passes in general, e.g., 6 passes total)
+    // 4. Generic O/L Count (Total Passes in general, e.g., 6 passes total)
     // This is usually required ON TOP of the specific subject rules
     const allOLGrades = [
       formData.olReligion, formData.olLang, formData.olMath, formData.olScience, 
@@ -242,9 +236,7 @@ export const useFormValidation = (formData, activeSubCourse,activeCourse,globalD
     ];
     const totalOLPasses = allOLGrades.filter(g => getGradeValue(g) >= 1).length;
     
-    // In many cases, "olSubjectCount" in DB refers to TOTAL PASSES (e.g. 6), 
-    // not just the count of rule-matched subjects. 
-    // If your DB "olSubjectCount" means "Total 6 Passes", use this:
+    
     if (totalOLPasses < counts.olSubjectCount) {
         // Avoid duplicate error if the rule-based one triggered
         if (!newErrors.some(e => e.includes("O/L Subject Selection"))) {

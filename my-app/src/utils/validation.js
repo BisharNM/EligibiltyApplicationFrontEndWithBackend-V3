@@ -36,26 +36,26 @@ export const validateForm = (formData, activeTab, subTab, specificMedium) => {
     validationErrors.push("A/L Requirement: Must have passed (S or higher) in 3 subjects.");
   }
 
-  // Course-specific validations
+  // Course specific validations
   validateCourseSpecific(validationErrors, formData, activeTab, subTab);
   
   // O/L Validation
   validateOLevel(validationErrors, formData, activeTab, subTab);
 
-  // 3. Run Global English Medium Check (The new requirement)
+  //  Run Global English Medium Check 
   validateEnglishMediumGeneral(validationErrors, formData, activeTab, subTab, specificMedium);
   return validationErrors;
 };
 
 
 
-// --- NEW FUNCTION: Checks the English Medium Condition ---
+//  Checks the English Medium Condition 
 const validateEnglishMediumGeneral = (errors, formData, activeTab, subTab, specificMedium) => {
   // Define which grades count
   const creditGrades = ['A', 'B', 'C'];
   const passGrades = ['A', 'B', 'C', 'S'];
 
-  // Determine if the user has selected English Medium
+  
   let isEnglishMedium = false;
 
   // Case A: Courses where 'subTab' determines the medium (Science, Maths, Primary, Social Sci, Health PE)
@@ -68,8 +68,7 @@ const validateEnglishMediumGeneral = (errors, formData, activeTab, subTab, speci
     if (specificMedium === 'English') isEnglishMedium = true;
   }
 
-  // NOTE: We exclude 'English Language & Literature' course here because it has its own 
-  // complex logic (Clause 4.11) handled in `validateLanguageLit`.
+  
   if (activeTab === COURSES.LANGUAGE_LIT) return;
 
   // If English Medium is selected, check the condition
@@ -133,8 +132,7 @@ const validateCourseSpecific = (errors, formData, activeTab, subTab) => {
       validateSecondLang(errors, formData, subTab); 
       break;
       case COURSES.SPECIAL_EDU: 
-      // No specific subject requirements provided yet.
-      // Falls back to global 3 A/L Passes & General O/L rules.
+      
       break; 
     case COURSES.ENTRE_FIN: 
       validateEntreFin(errors, formData); 
@@ -147,13 +145,13 @@ const validateCourseSpecific = (errors, formData, activeTab, subTab) => {
 };
 
 
-// --- NEW VALIDATION FUNCTION FOR COUNSELLING ---
+
 const validateCounselling = (errors, formData) => {
   const creditGrades = ['A', 'B', 'C'];
 
-  // 4.30.1: A/L - Any 3 subjects (Handled by global check)
+  //  A/L - Any 3 subjects 
 
-  // 4.30.2: O/L - Credit in Math AND Medium Language
+  // O/L - Credit in Math AND Medium Language
   const hasMathCredit = creditGrades.includes(formData.olMath);
   const hasLangCredit = creditGrades.includes(formData.olLang);
 
@@ -161,7 +159,7 @@ const validateCounselling = (errors, formData) => {
     errors.push("Counselling (4.30.2): Requires Credit (C) in BOTH O/L Mathematics and Medium Language (Sinhala/Tamil).");
   }
 };
-// --- NEW VALIDATION FUNCTION FOR ENTREPRENEURSHIP ---
+
 const validateEntreFin = (errors, formData) => {
   const selectedALSubjects = [
     formData.alSubject1, 
@@ -169,12 +167,11 @@ const validateEntreFin = (errors, formData) => {
     formData.alSubject3
   ];
 
-  // --- 4.28.1 A/L Requirements ---
+  //   Requirements 
   // Count how many selected subjects are from the Main Commerce list
   const mainCount = selectedALSubjects.filter(sub => ENTRE_MAIN_SUBJECTS.includes(sub)).length;
   
   // Count how many are from the Approved Third Subject list
-  // Note: We check if the subject name *includes* the keyword to handle slight naming variations like "ICT" vs "Information Technology"
   const thirdCount = selectedALSubjects.filter(sub => 
     ENTRE_THIRD_SUBJECTS.some(reqSub => sub.includes(reqSub))
   ).length;
@@ -189,7 +186,7 @@ const validateEntreFin = (errors, formData) => {
     errors.push("Entrepreneurship (4.28.1): A/L must be 3 Commerce subjects OR 2 Commerce + 1 approved 3rd subject.");
   }
 
-  // --- 4.28.2 O/L Requirements ---
+  //  O/L Requirements 
   // Credit (C) in Business & Accounting Studies OR Entrepreneurship Studies
   const creditGrades = ['A', 'B', 'C'];
   const targetSubjects = ['Business & Acc. Studies', 'Business & Accounting Studies', 'Entrepreneurship Studies'];
@@ -209,11 +206,10 @@ const validateSecondLang = (errors, formData, subTab) => {
   const creditGrades = ['A', 'B', 'C'];
   const passGrades = ['A', 'B', 'C', 'S'];
 
-  // --- 4.25 Second National Language (Sinhala) ---
-  // (Applicants are usually Tamil medium students applying to learn/teach Sinhala)
+  //   Second National Language (Sinhala) 
   if (subTab === 'Second National Language (Sinhala)') {
     
-    // 4.25.1: A/L Credit in Sinhala
+    //  A/L Credit in Sinhala
     const hasALSinhalaCredit = 
       (formData.alSubject1 === 'Sinhala' && creditGrades.includes(formData.alGrade1)) ||
       (formData.alSubject2 === 'Sinhala' && creditGrades.includes(formData.alGrade2)) ||
@@ -223,16 +219,14 @@ const validateSecondLang = (errors, formData, subTab) => {
       errors.push("Second Lang (Sinhala) 4.25.1: Requires Credit (C) in A/L Sinhala.");
     }
 
-    // 4.25.2: O/L Credit in Sinhala Lang & Lit
-    // Assumption: For this course, the main O/L language might be Tamil, 
-    // so we check if Sinhala was taken as a subject (often in buckets for Tamil students).
+    //  O/L Credit in Sinhala Lang & Lit
+    
+    
     let hasOLSinhalaCredit = false;
     
-    // Check main lang (if they did Sinhala medium O/L, unlikely but possible)
+    // Check main lang 
     if (formData.olLang === 'A' || formData.olLang === 'B' || formData.olLang === 'C') {
-       // Only valid if the medium itself was Sinhala, but usually this course is for Tamil speakers.
-       // The clause says "Sinhala Language and Literature".
-       // We'll assume they might enter it in buckets if it's not their main medium.
+       //
     }
 
     // Check Buckets for "Sinhala" or "Second Language (Sinhala)"
@@ -244,11 +238,8 @@ const validateSecondLang = (errors, formData, subTab) => {
       errors.push("Second Lang (Sinhala) 4.25.2: Requires Credit (C) in O/L Sinhala Language & Literature.");
     }
 
-    // 4.25.3: O/L Second Language (Tamil) Pass OR Advanced Course (Tamil)
-    // This clause seems reversed in your prompt? Usually:
-    // "Second Lang (Sinhala)" course -> Req: A/L Sinhala + O/L Sinhala + O/L Tamil (2nd Lang)
-    // Your prompt says: "4.25.3 Should have passed Second Language (Tamil)..."
-    // I will implement strictly as per your text.
+    //  O/L Second Language (Tamil) Pass OR Advanced Course (Tamil)
+   
     
     let hasOLTamil2ndPass = false;
     // Check buckets for Tamil (Second Language)
@@ -262,10 +253,10 @@ const validateSecondLang = (errors, formData, subTab) => {
     }
   }
 
-  // --- 4.26 Second National Language (Tamil) ---
+  //   Second National Language (Tamil) 
   if (subTab === 'Second National Language (Tamil)') {
     
-    // 4.26.1: A/L Credit in Tamil
+    //  A/L Credit in Tamil
     const hasALTamilCredit = 
       (formData.alSubject1 === 'Tamil' && creditGrades.includes(formData.alGrade1)) ||
       (formData.alSubject2 === 'Tamil' && creditGrades.includes(formData.alGrade2)) ||
@@ -275,7 +266,7 @@ const validateSecondLang = (errors, formData, subTab) => {
       errors.push("Second Lang (Tamil) 4.26.1: Requires Credit (C) in A/L Tamil.");
     }
 
-    // 4.26.2: O/L Credit in Tamil Lang & Lit
+    // O/L Credit in Tamil Lang & Lit
     let hasOLTamilCredit = false;
     const tamSubjects = ['Tamil', 'Second Language (Tamil)', 'Tamil Language and Literature'];
     
@@ -285,7 +276,7 @@ const validateSecondLang = (errors, formData, subTab) => {
       errors.push("Second Lang (Tamil) 4.26.2: Requires Credit (C) in O/L Tamil Language & Literature.");
     }
 
-    // 4.26.3: O/L Second Language (Sinhala) Pass OR Advanced Course (Sinhala)
+    //  O/L Second Language (Sinhala) Pass OR Advanced Course (Sinhala)
     let hasOLSinhala2ndPass = false;
     const sin2Subjects = ['Second Language (Sinhala)', 'Sinhala Language'];
     if (sin2Subjects.some(s => formData.olBucket1Sub.includes(s)) && passGrades.includes(formData.olBucket1Grade)) hasOLSinhala2ndPass = true;
@@ -302,9 +293,9 @@ const validateLanguageLit = (errors, formData, subTab) => {
   const passGrades = ['A', 'B', 'C', 'S'];
   const veryGoodGrades = ['A', 'B'];
 
-  // --- 1. SINHALA LANGUAGE & LITERATURE (4.9) ---
+  //  1.  Sinhala Language & Literature (4.9) 
   if (subTab === 'Sinhala Language & Literature') {
-    // 4.9.1 A/L: 3 subjects passed + Sinhala (Credit)
+    //  3 subjects passed + Sinhala (Credit)
     // Check if user selected "Sinhala" as one of their 3 subjects and got C+
     const hasALSinhalaCredit = 
       (formData.alSubject1 === 'Sinhala' && creditGrades.includes(formData.alGrade1)) ||
@@ -315,16 +306,16 @@ const validateLanguageLit = (errors, formData, subTab) => {
       errors.push("Sinhala Lit (4.9.1): Requires Credit (C) or higher in A/L Sinhala Language.");
     }
 
-    // 4.9.2 O/L: Credit in Sinhala Lang & Lit
+    //  O/L: Credit in Sinhala Lang & Lit
     // 'olLang' represents the main language subject (Sinhala for Sinhala medium students)
     if (!creditGrades.includes(formData.olLang)) {
       errors.push("Sinhala Lit (4.9.2): Requires Credit (C) in O/L Sinhala Language & Literature.");
     }
   }
 
-  // --- 2. TAMIL LANGUAGE & LITERATURE (4.10) ---
+  //  2. Tamil Language & Literature (4.10) 
   if (subTab === 'Tamil Language & Literature') {
-    // 4.10.1 A/L: 3 subjects passed + Tamil (Credit)
+    // A/L: 3 subjects passed + Tamil (Credit)
     const hasALTamilCredit = 
       (formData.alSubject1 === 'Tamil' && creditGrades.includes(formData.alGrade1)) ||
       (formData.alSubject2 === 'Tamil' && creditGrades.includes(formData.alGrade2)) ||
@@ -334,13 +325,13 @@ const validateLanguageLit = (errors, formData, subTab) => {
       errors.push("Tamil Lit (4.10.1): Requires Credit (C) or higher in A/L Tamil Language.");
     }
 
-    // 4.10.2 O/L: Credit in Tamil Lang & Lit
+    //  O/L: Credit in Tamil Lang & Lit
     if (!creditGrades.includes(formData.olLang)) {
       errors.push("Tamil Lit (4.10.2): Requires Credit (C) in O/L Tamil Language & Literature.");
     }
   }
 
-  // --- 3. ENGLISH LANGUAGE & LITERATURE (4.11) ---
+  //   English Language & Literature (4.11) 
   if (subTab === 'English Language & Literature') {
     
     // Check global A/L 3 passes (S or better)
@@ -348,21 +339,21 @@ const validateLanguageLit = (errors, formData, subTab) => {
     const alPasses = alGrades.filter(g => passGrades.includes(g)).length;
     const has3ALPasses = alPasses >= 3;
 
-    // Helper: Check if English (Subject 73) was taken in A/L
-    const hasALEnglishSub = [formData.alSubject1, formData.alSubject2, formData.alSubject3].includes("English"); // "English" represents Sub No 73
+    //  Check if English (Subject 73) was taken in A/L
+    const hasALEnglishSub = [formData.alSubject1, formData.alSubject2, formData.alSubject3].includes("English"); 
 
-    // Helper: Get O/L Lit Grade (Usually in Bucket 2)
+    //  Get O/L Lit Grade (Usually in Bucket 2)
     const olLitGrade = formData.olBucket2Sub.includes("Literature") ? formData.olBucket2Grade : 'F';
 
-    // --- Path 1 (4.11.1) ---
+    //  Path 1 (4.11.1) 
     // A/L 3 subs including English (73) AND (O/L Eng Credit OR O/L Lit Pass)
     const path1 = has3ALPasses && hasALEnglishSub && (creditGrades.includes(formData.olEnglish) || passGrades.includes(olLitGrade));
     
-    // --- Path 2 (4.11.2) ---
+    //  Path 2 (4.11.2) 
     // A/L any 3 subs AND (O/L Lit Credit AND O/L Eng Pass)
     const path2 = has3ALPasses && creditGrades.includes(olLitGrade) && passGrades.includes(formData.olEnglish);
 
-    // --- Path 3 (4.11.3) ---
+    //  Path 3 (4.11.3) 
     // A/L any 3 subs + General English (Pass) AND O/L Eng Very Good (B)
     const path3 = has3ALPasses && passGrades.includes(formData.alGenEnglishGrade) && veryGoodGrades.includes(formData.olEnglish);
 
@@ -381,13 +372,13 @@ const validateICT = (errors, formData) => {
   const veryGoodGrades = ['A', 'B'];
   const distinction = ['A'];
 
-  // Helper: A/L ICT Grade
+  //  A/L ICT Grade
   let alICTGrade = 'F';
   if (formData.alSubject1.includes('Information')) alICTGrade = formData.alGrade1;
   else if (formData.alSubject2.includes('Information')) alICTGrade = formData.alGrade2;
   else if (formData.alSubject3.includes('Information')) alICTGrade = formData.alGrade3;
 
-  // Helper: O/L English Requirement (Common to all paths: Eng(C) OR Lit(S))
+  //  O/L English Requirement (Common to all paths: Eng(C) OR Lit(S))
   const olLitGrade = formData.olBucket2Sub.includes("English Literature") ? formData.olBucket2Grade : 'F';
   const hasEngReq = creditGrades.includes(formData.olEnglish) || passGrades.includes(olLitGrade);
 
@@ -396,32 +387,32 @@ const validateICT = (errors, formData) => {
     return; // All paths require this
   }
 
-  // Helper: O/L ICT Grade (Check buckets)
+  //  O/L ICT Grade (Check buckets)
   let olICTGrade = 'F';
   if (formData.olBucket1Sub.includes('ICT')) olICTGrade = formData.olBucket1Grade;
   else if (formData.olBucket2Sub.includes('ICT')) olICTGrade = formData.olBucket2Grade;
   else if (formData.olBucket3Sub.includes('ICT')) olICTGrade = formData.olBucket3Grade;
 
-  // --- PATHWAY 1 (4.24.1) ---
+  //  PATHWAY 1 (4.24.1) 
   // A/L ICT (Credit)
   const path1 = creditGrades.includes(alICTGrade);
 
-  // --- PATHWAY 2 (4.24.2) ---
+  //  PATHWAY 2 (4.24.2) 
   // A/L ICT (Pass) + O/L ICT (Credit)
   const path2 = passGrades.includes(alICTGrade) && creditGrades.includes(olICTGrade);
 
-  // --- PATHWAY 3 (4.24.3) - Physical Science Stream ---
-  // A/L 3 subjects (Physics/Maths usually implied by stream name, checking generic pass here)
+  //  PATHWAY 3 (4.24.3) - Physical Science Stream 
+  // A/L 3 subjects (Physics/Maths usually implied by stream name, checking generic pass )
   // + O/L ICT (Very Good/B)
   const path3 = veryGoodGrades.includes(olICTGrade); 
-  // Note: Stream check is implicit in A/L subjects, assuming user selected Phys/Maths
+  
 
-  // --- PATHWAY 4 (4.24.4) - Bio Stream ---
+  //  PATHWAY 4 (4.24.4) - Bio Stream 
   // A/L 3 subjects + O/L ICT (Very Good/B)
   // Same O/L requirement as Path 3
   const path4 = veryGoodGrades.includes(olICTGrade);
 
-  // --- PATHWAY 5 (4.24.5) - Arts/Commerce/Tech/Other ---
+  //  PATHWAY 5 (4.24.5) - Arts/Commerce/Tech/Other 
   // A/L 3 subjects + O/L ICT (Distinction/A)
   const path5 = distinction.includes(olICTGrade);
 
@@ -429,7 +420,7 @@ const validateICT = (errors, formData) => {
     errors.push("ICT: Eligibility not met. Check 4.24 (A/L ICT grade OR O/L ICT grade requirements).");
   }
 };
-// --- NEW VALIDATION FUNCTION FOR ENGINEERING TECH ---
+//   Validation Function For Engineering 
 const validateEngTech = (errors, formData) => {
   const selectedALSubjects = [
     formData.alSubject1, 
@@ -438,7 +429,6 @@ const validateEngTech = (errors, formData) => {
   ];
 
   // Path 1 (4.23.1): Engineering Tech + Science for Tech + (Any 3rd subject from Tech Stream)
-  // Since we don't have a strict list of "3rd subjects", checking for the first two is usually the critical part.
   const path1 = 
     selectedALSubjects.includes('Engineering Technology') && 
     selectedALSubjects.includes('Science for Technology');
@@ -457,13 +447,13 @@ const validateEngTech = (errors, formData) => {
   }
 
   // 4.23.3: O/L Passing
-  // This is already covered by the global `validateOLevel` function which checks for 6 passes.
+  
 };
-// --- NEW VALIDATION FUNCTION FOR DESIGN TECH ---
+//   Validation Function For Design Tech 
 const validateDesignTech = (errors, formData) => {
   const creditGrades = ['A', 'B', 'C'];
 
-  // 4.22.1: A/L - Any 3 subjects (Handled by global check)
+  
 
   // 4.22.2: O/L - Credit in "Crafts and Arts"
   // This implies checking if any Aesthetic/Art subject was taken and passed with Credit.
@@ -499,12 +489,12 @@ const validateFoodTech = (errors, formData) => {
     formData.alSubject3
   ];
 
-  // Condition: Must include 'Home Economics'
+  // Condition - Must include 'Home Economics'
   if (!selectedALSubjects.includes('Home Economics')) {
     errors.push("Food & Consumer Tech (4.14): A/L subjects must include 'Home Economics'.");
   }
 
-  // Note: The general 3 passes check is already handled by the global validation in validateForm
+  
 };
 
 const validateScience = (errors, formData) => {
@@ -523,26 +513,25 @@ const validateScience = (errors, formData) => {
   }
 };
 
-// --- NEW VALIDATION FUNCTION FOR AGRICULTURE TECHNOLOGY ---
+// Validation Function For Agriculture Technology 
 const validateAgriTech = (errors, formData) => {
   const selectedALSubjects = [formData.alSubject1, formData.alSubject2, formData.alSubject3];
   
-  // --- A/L Requirements (One of 3 paths) ---
+  //  A/L Requirements (One of 3 paths) 
 
-  // Path 1 (4.21.1): Biology Stream -> Agricultural Science + Biology + Chemistry
+  // Path 1 (4.21.1) Biology Stream -> Agricultural Science + Biology + Chemistry
   const path1 = 
     selectedALSubjects.includes('Agricultural Science') && 
     selectedALSubjects.includes('Biology') && 
     selectedALSubjects.includes('Chemistry');
 
-  // Path 2 (4.21.2): Tech Stream -> Bio-System Tech + Science for Tech + Agricultural Science
+  // Path 2 (4.21.2)  Tech Stream -> Bio-System Tech + Science for Tech + Agricultural Science
   const path2 = 
     selectedALSubjects.includes('Bio-system Technology') && 
     selectedALSubjects.includes('Science for Technology') && 
     selectedALSubjects.includes('Agricultural Science');
 
-  // Path 3 (4.21.3): Arts Stream -> Any 3 subjects but MUST include ONE of the specific Agri subjects
-  // Note: The global check ensures 3 subjects are passed. We just check if one specific subject exists.
+  // Path 3 (4.21.3)  Arts Stream -> Any 3 subjects but MUST include ONE of the specific Agri subjects
   const artsAgriSubjects = [
     'Agricultural Science', 
     'Agro-Technology', 
@@ -555,7 +544,7 @@ const validateAgriTech = (errors, formData) => {
     errors.push("Agriculture Tech (A/L): Requirements not met. Must satisfy Path 1 (Bio Stream), Path 2 (Tech Stream), or Path 3 (Arts Stream with Agri subject).");
   }
 
-  // --- O/L Requirements (4.21.4) ---
+  //  O/L Requirements (4.21.4) 
   
   // 1. Credit in Science
   const creditGrades = ['A', 'B', 'C'];
@@ -563,8 +552,7 @@ const validateAgriTech = (errors, formData) => {
     errors.push("Agriculture Tech (O/L): Requires Credit (C) in Science.");
   }
 
-  // 2. Credit in (Agri & Food Tech OR Aquatic Life Resources)
-  // These are bucket subjects. We check all buckets.
+  // Credit in (Agri & Food Tech OR Aquatic Life Resources)
   const agriSubjects = [
     'Agricultural and Food Technology',
     'Aquatic Life Resources Technology'
@@ -720,10 +708,10 @@ const validateArt = (errors, formData, subTab) => {
   const creditGrades = ['A', 'B', 'C'];
   const passGrades = ['A', 'B', 'C', 'S'];
   
-  // --- FIX: Define this at the top so it is available for ALL sub-tabs ---
+  
   const selectedALSubjects = [formData.alSubject1, formData.alSubject2, formData.alSubject3];
 
-  // --- 1. ART (Drawing) ---
+  //  1. ART (Drawing) 
   if (subTab === 'Art') {
     // 4.12.1: A/L Check (Must include 'Art')
     if (!selectedALSubjects.includes('Art')) {
@@ -741,11 +729,11 @@ const validateArt = (errors, formData, subTab) => {
     }
   }
   
-  // --- 2. DANCE (ORIENTAL) ---
+  //  Dance (Oriental) 
   else if (subTab === 'Dance (Oriental)') {
     
     // 4.13.1: A/L Check (Must include 'Dancing' or 'Dance (Oriental)')
-    // Using .some() allows it to match "Dancing" or "Dance (Oriental)"
+    
     const hasALDancing = selectedALSubjects.some(sub => sub.includes('Dance (Oriental)') || sub.includes('Dance (Oriental)'));
     
     if (!hasALDancing) {
@@ -765,7 +753,7 @@ const validateArt = (errors, formData, subTab) => {
   else if (subTab === 'Dance (Bharatha)') {
     
     // 4.13.1: A/L Check (Must include 'Dancing' or 'Dance (Oriental)')
-    // Using .some() allows it to match "Dancing" or "Dance (Oriental)"
+    
     const hasALDancing = selectedALSubjects.some(sub => sub.includes('Dance ((Bharatha)') || sub.includes('Dance (Bharatha)'));
     
     if (!hasALDancing) {
@@ -785,14 +773,14 @@ const validateArt = (errors, formData, subTab) => {
    else if (subTab === 'Music (Oriental)') {
     
     // 4.13.1: A/L Check (Must include 'Dancing' or 'Dance (Oriental)')
-    // Using .some() allows it to match "Dancing" or "Dance (Oriental)"
+    
     const hasALDancing = selectedALSubjects.some(sub => sub.includes('Music (Oriental)') || sub.includes('Music (Oriental)'));
     
     if (!hasALDancing) {
       errors.push("Music (Oriental) (4.13.1): A/L subjects must include Music (Oriental).");
     }
 
-    // 4.13.2: O/L Check (Credit in Dancing (Oriental))
+    
     const hasOLDanceCredit = 
       (formData.olBucket1Sub.includes('Music (Oriental)') && creditGrades.includes(formData.olBucket1Grade)) ||
       (formData.olBucket2Sub.includes('Music (Oriental)') && creditGrades.includes(formData.olBucket2Grade)) ||
@@ -804,15 +792,15 @@ const validateArt = (errors, formData, subTab) => {
   }
   else if (subTab === 'Music (Carnatic)') {
     
-    // 4.13.1: A/L Check (Must include 'Dancing' or 'Dance (Oriental)')
-    // Using .some() allows it to match "Dancing" or "Dance (Oriental)"
+   
+    
     const hasALDancing = selectedALSubjects.some(sub => sub.includes('Music (Carnatic)') || sub.includes('Music (Carnatic)'));
     
     if (!hasALDancing) {
       errors.push("Music (Carnatic) (4.13.1): A/L subjects must include Music (Carnatic).");
     }
 
-    // 4.13.2: O/L Check (Credit in Dancing (Oriental))
+    // 4.13.2: O/L Check (Credit in Music ))
     const hasOLDanceCredit = 
       (formData.olBucket1Sub.includes('Music (Carnatic)') && creditGrades.includes(formData.olBucket1Grade)) ||
       (formData.olBucket2Sub.includes('Music (Carnatic)') && creditGrades.includes(formData.olBucket2Grade)) ||
@@ -824,15 +812,14 @@ const validateArt = (errors, formData, subTab) => {
   }
   else if (subTab === 'Drama and Theatre') {
     
-    // 4.13.1: A/L Check (Must include 'Dancing' or 'Dance (Oriental)')
-    // Using .some() allows it to match "Dancing" or "Dance (Oriental)"
+    
     const hasALDancing = selectedALSubjects.some(sub => sub.includes('Drama and Theatre') || sub.includes('Drama and Theatre'));
     
     if (!hasALDancing) {
       errors.push("Drama and Theatre (4.13.1): A/L subjects must include Drama and Theatre.");
     }
 
-    // 4.13.2: O/L Check (Credit in Dancing (Oriental))
+    // 4.13.2: O/L Check (Credit in Drama and Theatre)
     const hasOLDanceCredit = 
       (formData.olBucket1Sub.includes('Drama and Theatre') && creditGrades.includes(formData.olBucket1Grade)) ||
       (formData.olBucket2Sub.includes('Drama and Theatre') && creditGrades.includes(formData.olBucket2Grade)) ||
@@ -842,10 +829,10 @@ const validateArt = (errors, formData, subTab) => {
       errors.push("Drama and Theatre (4.13.2): Requires Credit (C) in O/L Drama and Theatre.");
     }
   }
-    // --- WESTERN MUSIC (4.17) ---
+    //  Western Music (4.17) 
   if (subTab === 'Western Music') {
     
-    // 1. Determine O/L Western Music Grade from buckets
+    s
     let olMusicGrade = 'F';
     if (formData.olBucket1Sub.includes('Western Music')) olMusicGrade = formData.olBucket1Grade;
     else if (formData.olBucket2Sub.includes('Western Music')) olMusicGrade = formData.olBucket2Grade;
@@ -854,7 +841,7 @@ const validateArt = (errors, formData, subTab) => {
     // 2. Check English Requirement (Common to all 4 paths)
     // Req: O/L English >= C  OR  O/L English Lit >= S
     
-    // Find Lit grade in buckets
+   
     let olLitGrade = 'F';
     if (formData.olBucket1Sub.includes('English Literature')) olLitGrade = formData.olBucket1Grade;
     else if (formData.olBucket2Sub.includes('English Literature')) olLitGrade = formData.olBucket2Grade;
@@ -864,10 +851,10 @@ const validateArt = (errors, formData, subTab) => {
 
     if (!hasEnglishReq) {
       errors.push("Western Music: Requires O/L English (Credit) OR O/L English Literature (Pass).");
-      return; // Fail early if English condition isn't met
+      return; 
     }
 
-    // --- CHECK THE 4 PATHWAYS ---
+    //  CHECK THE 4 PATHWAYS 
 
     // Pathway 1 (4.17.1): A/L Western Music + O/L Music (Credit)
     const path1 = selectedALSubjects.includes('Western Music') && creditGrades.includes(olMusicGrade);
@@ -892,7 +879,7 @@ const validateArt = (errors, formData, subTab) => {
 };
 const validateHealthPE = (errors, formData) => {
   // A/L Requirement: Usually 3 passes
-  // O/L Requirement: Usually requires Science & Maths (similar to Science course), 
+  
   // checking standard General validation is often enough unless gazette specifies otherwise.
   
   // Check if at least one certificate is uploaded

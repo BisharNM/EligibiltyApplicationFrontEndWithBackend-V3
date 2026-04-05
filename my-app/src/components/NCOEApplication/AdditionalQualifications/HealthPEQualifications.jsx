@@ -3,7 +3,7 @@ import { FileText, X, UploadCloud } from 'lucide-react';
 
 const HealthPEQualifications = ({ formData, onChange }) => {
   
-  // Handler to add a new file to the array
+  
   const handleFileUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
       const newFile = e.target.files[0];
@@ -11,12 +11,12 @@ const HealthPEQualifications = ({ formData, onChange }) => {
       // Create a new array with existing files + new file
       const updatedList = [...(formData.healthPECertificates || []), newFile];
       
-      // Simulate standard onChange event for the parent component
+      
       onChange({
         target: {
           name: 'healthPECertificates',
           value: updatedList,
-          type: 'file-list' // Custom type indicator if needed
+          type: 'file-list'
         }
       });
     }
@@ -59,8 +59,7 @@ const HealthPEQualifications = ({ formData, onChange }) => {
               type="file" 
               className="hidden" 
               onChange={handleFileUpload}
-              // Remove 'multiple' attribute here to force adding one by one for better state control, 
-              // or keep it and loop through files in the handler.
+              
             />
           </label>
         </div>

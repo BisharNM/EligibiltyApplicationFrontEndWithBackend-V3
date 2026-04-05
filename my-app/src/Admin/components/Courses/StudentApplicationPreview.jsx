@@ -55,7 +55,7 @@ export default function StudentApplicationPreview({ course, onBack }) {
           </h2>
         </div>
 
-        {/* Course Tabs (Mock) */}
+        {/* Course Tabs  */}
         <div className="flex bg-gray-200 border-b border-gray-300">
           <div className="flex-1 py-4 text-center font-bold uppercase bg-white text-blue-900 border-t-4 border-blue-900 shadow-sm z-10 text-sm">
             {course.name}

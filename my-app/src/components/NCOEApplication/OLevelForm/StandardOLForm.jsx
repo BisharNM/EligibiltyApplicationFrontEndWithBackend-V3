@@ -1,10 +1,10 @@
 import React from 'react';
 import { BookOpen, Calculator, Globe, Clock, Layers } from 'lucide-react';
-import { MEDIUMS, OL_RELIGIONS, BUCKET_1, BUCKET_2, BUCKET_3 } from '../../../constants';
+import { MEDIUMS, OL_RELIGIONS } from '../../../constants';
 import { getOLStats } from '../../../utils/helpers';
 import GradeSelect from '../shared/GradeSelect';
 
-const StandardOLForm = ({ formData, onChange }) => {
+const StandardOLForm = ({ formData, onChange, bucket1, bucket2, bucket3 }) => {
   const stats = getOLStats(formData);
 
   return (
@@ -80,8 +80,27 @@ const StandardOLForm = ({ formData, onChange }) => {
               <GradeSelect name="olReligion" value={formData.olReligion} onChange={onChange} includeW />
             </div>
           </div>
+          
+          {/* First Language & Literature (Replaces "Medium Language") */}
+          <div className="p-4 flex flex-col sm:flex-row items-center gap-4 hover:bg-gray-50 transition-colors">
+            <div className="w-full sm:w-2/3">
+              <label className="text-sm font-medium text-gray-900 block mb-1 sm:mb-0">First Language & Literature</label>
+              <select 
+                name="olFirstLang" 
+                onChange={onChange} 
+                value={formData.olFirstLang} 
+                className="w-full mt-1 sm:mt-0 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5"
+              >
+                <option value="">-- Select Language --</option>
+                <option value="Sinhala">Sinhala</option>
+                <option value="Tamil">Tamil</option>
+              </select>
+            </div>
+            <div className="w-full sm:w-1/3">
+              <GradeSelect name="olLang" value={formData.olLang} onChange={onChange} includeW />
+            </div>
+          </div>
 
-          <StaticSubjectRow label="Medium Language" icon={Globe} name="olLang" val={formData.olLang} onChange={onChange} />
           <StaticSubjectRow label="Mathematics" icon={Calculator} name="olMath" val={formData.olMath} onChange={onChange} />
           <StaticSubjectRow label="Science" icon={BookOpen} name="olScience" val={formData.olScience} onChange={onChange} />
           <StaticSubjectRow label="English" icon={Globe} name="olEnglish" val={formData.olEnglish} onChange={onChange} />
@@ -96,9 +115,35 @@ const StandardOLForm = ({ formData, onChange }) => {
           <h4 className="font-bold text-gray-700 text-sm uppercase">Basket Subjects</h4>
         </div>
         <div className="divide-y divide-gray-100">
-          <BucketRow label="Basket 1 Subject" bucket={BUCKET_1} subName="olBucket1Sub" gradeName="olBucket1Grade" subVal={formData.olBucket1Sub} gradeVal={formData.olBucket1Grade} onChange={onChange} />
-          <BucketRow label="Basket 2 Subject" bucket={BUCKET_2} subName="olBucket2Sub" gradeName="olBucket2Grade" subVal={formData.olBucket2Sub} gradeVal={formData.olBucket2Grade} onChange={onChange} />
-          <BucketRow label="Basket 3 Subject" bucket={BUCKET_3} subName="olBucket3Sub" gradeName="olBucket3Grade" subVal={formData.olBucket3Sub} gradeVal={formData.olBucket3Grade} onChange={onChange} />
+          <BucketRow 
+             label="Category Subject 1"
+             subName="olBucket1Sub" 
+             gradeName="olBucket1Grade"
+             subValue={formData.olBucket1Sub} 
+             gradeValue={formData.olBucket1Grade}
+             options={bucket1} 
+             cb={onChange} 
+          />
+          
+          <BucketRow 
+             label="Category Subject 2"
+             subName="olBucket2Sub" 
+             gradeName="olBucket2Grade"
+             subValue={formData.olBucket2Sub} 
+             gradeValue={formData.olBucket2Grade}
+             options={bucket2} 
+             cb={onChange} 
+          />
+          
+          <BucketRow 
+             label="Category Subject 3"
+             subName="olBucket3Sub" 
+             gradeName="olBucket3Grade"
+             subValue={formData.olBucket3Sub} 
+             gradeValue={formData.olBucket3Grade}
+             options={bucket3} 
+             cb={onChange} 
+          />
         </div>
       </div>
 
@@ -159,7 +204,7 @@ const StandardOLForm = ({ formData, onChange }) => {
   );
 };
 
-// --- Helper Components ---
+//  Helper Components 
 
 const StaticSubjectRow = ({ label, icon: Icon, name, val, onChange }) => (
   <div className="p-4 flex flex-col sm:flex-row items-center gap-4 hover:bg-gray-50 transition-colors">
@@ -173,21 +218,24 @@ const StaticSubjectRow = ({ label, icon: Icon, name, val, onChange }) => (
   </div>
 );
 
-const BucketRow = ({ label, bucket, subName, gradeName, subVal, gradeVal, onChange }) => (
+const BucketRow = ({ label, subName, gradeName, subValue, gradeValue, options, cb }) => (
   <div className="p-4 flex flex-col sm:flex-row items-center gap-4 hover:bg-gray-50 transition-colors">
     <div className="w-full sm:w-2/3">
-      <select 
-        name={subName} 
-        value={subVal} 
-        onChange={onChange} 
-        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2"
-      >
-        <option value="">-- {label} --</option>
-        {bucket.map(s => <option key={s} value={s}>{s}</option>)}
-      </select>
+       <label className="block text-xs text-gray-500 mb-1 sm:hidden">{label}</label>
+       <select 
+              name={subName} 
+              value={subValue} 
+              onChange={cb} 
+              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2"
+           >
+              <option value="">-- Select Subject ({label}) --</option>
+              {options && options.map(s => (
+                  <option key={s.id} value={s.name}>{s.name}</option>
+              ))}
+           </select>
     </div>
     <div className="w-full sm:w-1/3">
-      <GradeSelect name={gradeName} value={gradeVal} onChange={onChange} includeW />
+       <GradeSelect name={gradeName} value={gradeValue} onChange={cb} />
     </div>
   </div>
 );

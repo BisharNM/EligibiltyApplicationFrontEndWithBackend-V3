@@ -6,4 +6,11 @@ export const courseApi = {
   create: async (course) => (await adminHttp.post("/Courses/", course)).data,
 
   update: async (course) => (await adminHttp.put("/Courses/", course)).data,
+
+    delete: async (id) => {
+    
+    await adminHttp.delete(`/Courses/${id}`); 
+  },
+  //  Delete All
+  deleteAll: async () => (await adminHttp.delete("/Courses/")).data,
 };

@@ -1,13 +1,41 @@
-export const createNewSubCourse = (id) => ({
-  id,
-  name: 'New Sub-Course',
-  mediums: { sinhala: true, tamil: true, english: false },
-  additionalQuals: {
-    title: "Additional Qualifications",
-    fields: []
-  }
+
+
+export const createEmptyConfig = () => ({
+  // Use temporary ID for UI key, set to null for backend
+  tempId: Date.now(), 
+  configId: null, 
+  inputLabel: "", 
+  inputType: "text", 
+  fileCountLimit: "1"
+});
+export const createEmptyAlRule = () => ({
+  alSubject: "",
+  grade: "S",
+  status: true 
 });
 
+export const createEmptyOlRule = () => ({
+  olSubject: "",
+  grade: "S",
+  status: true,
+  isBucket: false 
+});
+
+export const createDefaultQualCount = () => ({
+  alSubjectCount: 3,
+  olSubjectCount: 6,
+  olCreditsNeeded: 3
+});
+
+export const createNewSubCourse = (id, name = "New Specialization") => ({
+  subCourseId: typeof id === 'number' ? id : null, 
+  subCourseName: name,
+  mediumLanguage: "ST",
+  qualificationCount: createDefaultQualCount(),
+  alRules: [],
+  olRules: [],
+  additionalConfigs: []
+});
 export const updateQualsData = (target, action, payload) => {
   const { title, fields } = target;
   let newFields = [...fields];

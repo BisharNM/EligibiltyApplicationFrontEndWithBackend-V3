@@ -66,9 +66,8 @@ export const calculateArtRankingScore = (grade) => {
   };
   return scoreMap[grade] || 0;
 };
-// utils/helpers.js
 
-// ... keep your existing calculateAge and other helpers ...
+
 
 export const parseMediums = (code) => {
   if (!code) return [];

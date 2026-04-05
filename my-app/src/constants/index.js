@@ -197,8 +197,8 @@ export const INITIAL_FORM_STATE = {
   certDiplomaTheology: null,
   certReligiousKnowledge: null,
 
-  westernMusicGrade5: 'No',         // For 4.17.2.3
-  alAdditionalWesternMusic: 'No',   // For 4.17.3.3
+  westernMusicGrade5: 'No',         
+  alAdditionalWesternMusic: 'No',   
 
   charCert: null,
   healthCert: null,

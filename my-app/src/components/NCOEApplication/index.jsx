@@ -4,6 +4,7 @@ import { useFormValidation } from '../../hooks/useFormValidation';
 import { parseMediums } from '../../utils/helpers';
 import DynamicQualForm from './DynamicQualForm';
 import RequirementsCard from './RequirementsCard';
+import { apiService } from '../../services/apiService'; 
 
 // Components
 import Header from './Header';
@@ -19,9 +20,211 @@ import ValidationSummary from './ValidationSummary';
 const API_URL = "http://localhost:8080/Courses/";
 
 export default function NCOEApplication() {
-  // --- STATE ---
+ 
   const [courses, setCourses] = useState([]);
    const [globalDeadline, setGlobalDeadline] = useState(null); 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+   
+   const [alOptions, setAlOptions] = useState({
+    bucket1: [],
+    bucket2: [],
+    bucket3: []
+  });
+
+  
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!canApply) return alert("Please fix validation errors.");
+  if (!window.confirm("Submit Application?")) return;
+
+  setIsSubmitting(true);
+
+  try {
+    
+    const textQuals = [];
+    
+    // Process Dynamic Inputs (Text/Radio go into JSON, Files are skipped for now)
+    (activeSubCourse?.additionalConfigs || []).forEach((config) => {
+      const fieldKey = `dynamic_${config.configId}`;
+      const value = formData[fieldKey];
+
+      if (!value) return;
+
+      if (config.inputType === 'text') {
+        textQuals.push({
+          labelName: config.inputLabel,
+          valueType: "TEXT",
+          valueText: value
+        });
+      } else if (config.inputType === 'radio') {
+        textQuals.push({
+          labelName: config.inputLabel,
+          valueType: "BOOLEAN",
+          valueBool: value === 'Yes'
+        });
+      }
+      
+    });
+    console.log(formData.gender);
+    console.log(formData.olReligionSubject);
+
+    const applicantPayload = {
+      NICNumber: formData.nic,
+      fullName: formData.fullName,
+      courseName: activeCourse.courseName  , 
+      subCourseName: activeSubCourse.subCourseName,
+      selectedMedium: selectedMedium,
+      DOB: formData.dob,
+      isMarried: formData.maritalStatus === 'married',
+      ALYear: formData.alYear,
+      ZScore: formData.zScore,
+      ALMedium: formData.alMedium,
+      Gender: formData.gender == 'male'? true : false ,
+      
+      fritsLanguageAndLiterature: formData.olFirstLang, 
+      OLMediumGrade: formData.olLang, 
+
+      ALSubject1: formData.alSubject1,
+      ALSubject1Grade: formData.alGrade1,
+      ALSubject2: formData.alSubject2,
+      ALSubject2Grade: formData.alGrade2,
+      ALSubject3: formData.alSubject3,
+      ALSubject3Grade: formData.alGrade3,
+
+      OLMedium: formData.olMedium,
+      // Mapping O/L Subjects
+      Religion: formData.olReligionSubject, 
+
+      ReligionGrade: formData.olReligion, 
+      mathematics: formData.olMath,
+      science: formData.olScience,
+      english: formData.olEnglish,
+      history: formData.olHistory,
+      
+      bucket1: formData.olBucket1Sub,
+      bucket1Grade: formData.olBucket1Grade,
+      bucket2: formData.olBucket2Sub,
+      bucket2Grade: formData.olBucket2Grade,
+      bucket3: formData.olBucket3Sub,
+      bucket3Grade: formData.olBucket3Grade,
+
+      // Attach the Text/Boolean qualifications directly
+      additionalQualifications: textQuals
+    };
+
+    //  Creating Applicant
+    console.log("Creating Applicant...", applicantPayload);
+    const savedApplicant = await apiService.createApplicant(applicantPayload);
+    const applicantId = savedApplicant.stuId; 
+    console.log("Applicant Created with ID:", applicantId);
+
+    //  Upload Standard Files 
+    const uploadPromises = [];
+     if (formData.charCert instanceof File && formData.healthCert instanceof File) {
+      uploadPromises.push(apiService.uploadCertificates(applicantId, formData.charCert, formData.healthCert));
+    }
+
+    if (formData.charCert instanceof File) {
+      uploadPromises.push(apiService.uploadCertificate(applicantId, 'character-certificate', formData.charCert));
+    }
+    if (formData.healthCert instanceof File) {
+      uploadPromises.push(apiService.uploadCertificate(applicantId, 'health-certificate', formData.healthCert));
+    }
+    
+
+    // Upload Dynamic Files 
+    (activeSubCourse?.additionalConfigs || []).forEach((config) => {
+      if (config.inputType === 'file') {
+        const fieldKey = `dynamic_${config.configId}`; 
+        
+        // Handle File Count logic (if array of files)
+        
+        const limit = parseInt(config.fileCountLimit || 1);
+        for(let i=0; i<limit; i++) {
+           const uniqueKey = `${fieldKey}_file_${i}`;
+           const file = formData[uniqueKey];
+           
+           if (file instanceof File) {
+             uploadPromises.push(
+               apiService.uploadAdditionalFile(applicantId, config.inputLabel, file)
+             );
+           }
+        }
+      }
+    });
+
+    // Wait for all uploads to finish
+    await Promise.all(uploadPromises);
+
+    alert("Application & Files Submitted Successfully!");
+    
+    
+  } catch (error) {
+    console.error("Submission Error:", error);
+    alert("Failed to submit application. Check console.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        
+
+        // 2. Fetch A/L Subjects in parallel
+        const [sub1, sub2, sub3] = await Promise.all([
+          apiService.getALSubjects1(),
+          apiService.getALSubjects2(),
+          apiService.getALSubjects3()
+        ]);
+
+        setAlOptions({
+          bucket1: sub1,
+          bucket2: sub2,
+          bucket3: sub3
+        });
+
+      } catch (error) {
+        console.error("Error loading data", error);
+      }
+    };
+
+    loadData();
+  }, []);
+ const [olOptions, setOlOptions] = useState({
+    bucket1: [],
+    bucket2: [],
+    bucket3: []
+  });
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        
+
+        // Fetch O/L Buckets in parallel
+        const [b1, b2, b3] = await Promise.all([
+          apiService.getOLBucket1(),
+          apiService.getOLBucket2(),
+          apiService.getOLBucket3()
+        ]);
+
+        setOlOptions({
+          bucket1: b1,
+          bucket2: b2,
+          bucket3: b3
+        });
+
+      } catch (error) {
+        console.error("Error loading data", error);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,11 +235,12 @@ export default function NCOEApplication() {
 
   // Form Data
   const [formData, setFormData] = useState({
-    fullName: '', nic: '', dob: '', alYear: '', zScore: '',
+    fullName: '', nic: '', dob: '', alYear: '', zScore: '', olFirstLang: '', 
+    olLang: '', 
     // ... initialize other fields based on your previous code
   });
 
-  // --- 1. LOAD DATA FROM BACKEND ---
+  //  1. Load Data From Backend 
  useEffect(() => {
     const loadData = async () => {
       try {
@@ -48,13 +252,13 @@ export default function NCOEApplication() {
 
         setCourses(coursesRes.data);
         
-        // 2. SET DEADLINE STATE
+        // 2. Set Deadline State
         // The backend returns object: { id: 1, closingDate: "2025-11-28" }
         if (deadlineRes.data && deadlineRes.data.closingDate) {
           setGlobalDeadline(deadlineRes.data.closingDate);
         }
 
-        // ... existing default selection logic ...
+        
 
       } catch (error) {
         console.error("Error loading data", error);
@@ -66,13 +270,13 @@ export default function NCOEApplication() {
     loadData();
   }, []);
 
-  // --- HELPERS ---
+  
   const activeCourse = courses.find(c => c.courseId === activeCourseId);
   const activeSubCourse = activeCourse?.subCourses?.find(sc => sc.subCourseId === activeSubCourseId);
 
     // Get the configurations specifically for the active Sub-Course
   const dynamicConfigs = activeSubCourse?.additionalConfigs || [];
-  // --- HANDLERS ---
+  
   const handleCourseSwitch = (courseId) => {
     setActiveCourseId(courseId);
     
@@ -100,13 +304,12 @@ export default function NCOEApplication() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value
-    }));
-  };
-
+  const { name, value, type, checked, files } = e.target;
+  setFormData(prev => ({
+    ...prev,
+    [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value
+  }));
+};
   // Logic to determine form validation (Update hook to accept activeSubCourse objects)
   const { errors, canApply } = useFormValidation(formData, activeSubCourse,activeCourse,globalDeadline,selectedMedium);
 
@@ -124,7 +327,7 @@ export default function NCOEApplication() {
           onSelect={handleCourseSwitch} 
         />
         
-        <form className="p-6">
+        <form className="p-6" onSubmit={handleSubmit}>
           {/* 2. SubCourse & Medium Selector (Handles "STE" parsing) */}
           <MediumSelector 
             activeCourse={activeCourse}
@@ -141,9 +344,25 @@ export default function NCOEApplication() {
           
           
           
-          {/* Pass activeSubCourse to forms so they can check specific Rules */}
-          <ALevelForm formData={formData} onChange={handleInputChange} />
-          <OLevelForm formData={formData} onChange={handleInputChange} />
+          
+          {/* <ALevelForm formData={formData} onChange={handleInputChange} /> */}
+          <ALevelForm 
+        formData={formData} 
+        onChange={handleInputChange} 
+        subjects1={alOptions.bucket1}
+        subjects2={alOptions.bucket2}
+        subjects3={alOptions.bucket3}
+    />
+          {/* <OLevelForm formData={formData} onChange={handleInputChange} /> */}
+
+           <OLevelForm 
+        formData={formData} 
+        onChange={handleInputChange} 
+        // Pass the database data down
+        bucket1={olOptions.bucket1}
+        bucket2={olOptions.bucket2}
+        bucket3={olOptions.bucket3}
+    />
            <DynamicQualForm 
                 configs={dynamicConfigs} 
                 formData={formData} 
@@ -151,7 +370,7 @@ export default function NCOEApplication() {
              />
           
           <DocumentUpload onChange={handleInputChange} />
-          <ValidationSummary errors={errors} canApply={canApply} />
+          <ValidationSummary errors={errors} canApply={canApply} isSubmitting={isSubmitting} />
           
         </form>
       </div>

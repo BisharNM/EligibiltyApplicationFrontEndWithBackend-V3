@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, BookOpen, Users } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users ,Layers ,Grid} from 'lucide-react';
 import SidebarButton from './SidebarButton';
 
 export default function Sidebar({ activeView, onViewChange }) {
@@ -31,6 +31,19 @@ export default function Sidebar({ activeView, onViewChange }) {
           active={activeView === 'APPLICANTS'} 
           onClick={() => onViewChange('APPLICANTS')}
         />
+        <SidebarButton 
+  icon={<Layers size={20}/>} 
+  label="A/L Subjects" 
+  active={activeView === 'SUBJECTS'} 
+  onClick={() => onViewChange('SUBJECTS')}
+/>
+
+<SidebarButton 
+  icon={<Grid size={20}/>} 
+  label="O/L Buckets" 
+  active={activeView === 'OL_BUCKETS'} 
+  onClick={() => onViewChange('OL_BUCKETS')}
+/>
       </nav>
     </aside>
   );

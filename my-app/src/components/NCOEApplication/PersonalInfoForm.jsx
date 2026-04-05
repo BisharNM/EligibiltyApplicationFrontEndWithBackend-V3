@@ -1,5 +1,6 @@
 import React from 'react';
-import { User, Calendar, CreditCard, Heart } from 'lucide-react';
+
+import { User, Calendar, CreditCard, Heart, Users } from 'lucide-react';
 import { calculateAge } from '../../utils/helpers';
 import { COURSES } from '../../constants';
 
@@ -36,6 +37,7 @@ const PersonalInfoForm = ({ formData, onChange, activeTab }) => {
           </div>
         </div>
 
+        {/* Row 2 & 3: Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           {/* NIC Number */}
@@ -54,7 +56,7 @@ const PersonalInfoForm = ({ formData, onChange, activeTab }) => {
             />
           </div>
 
-          {/* Date of Birth & Age */}
+          {/* Date of Birth */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
               <Calendar className="w-4 h-4 mr-2 text-gray-400" /> Date of Birth
@@ -77,7 +79,7 @@ const PersonalInfoForm = ({ formData, onChange, activeTab }) => {
             </div>
           </div>
 
-          {/* Marital Status (Toggle Group) */}
+          {/* Marital Status */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
               <Heart className="w-4 h-4 mr-2 text-gray-400" /> Marital Status
@@ -116,6 +118,47 @@ const PersonalInfoForm = ({ formData, onChange, activeTab }) => {
               </label>
             </div>
           </div>
+
+          {/*   Gender Section Start  */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <Users className="w-4 h-4 mr-2 text-gray-400" /> Gender
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className={`cursor-pointer text-center p-2.5 rounded-md border text-sm font-medium transition-colors ${
+                formData.gender === 'male' 
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-sm' 
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}>
+                <input 
+                  type="radio" 
+                  name="gender" 
+                  value="male" 
+                  checked={formData.gender === 'male'} 
+                  onChange={onChange} 
+                  className="hidden"
+                /> 
+                Male
+              </label>
+
+              <label className={`cursor-pointer text-center p-2.5 rounded-md border text-sm font-medium transition-colors ${
+                formData.gender === 'female' 
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-sm' 
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}>
+                <input 
+                  type="radio" 
+                  name="gender" 
+                  value="female" 
+                  checked={formData.gender === 'female'} 
+                  onChange={onChange} 
+                  className="hidden"
+                /> 
+                Female
+              </label>
+            </div>
+          </div>
+          {/*  Gender Section End */}
 
         </div>
 

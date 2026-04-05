@@ -1,11 +1,27 @@
 import { adminHttp } from "./http";
 
 export const deadlineApi = {
-  // backend returns Optional<Deadline>
-  get: async () => (await adminHttp.get("/Courses/deadline")).data ?? null,
+  //  Returns { id: 1, closingDate: "2025-11-28" } or null
+  get: async () => {
+    try {
+      const response = await adminHttp.get("/Courses/deadline");
+      return response.data;
+    } catch (e) {
+      console.error("Error fetching deadline:", e);
+      return null;
+    }
+  },
 
-  save: async (closingDate) =>
-    (await adminHttp.post("/Courses/deadline", { closingDate })).data,
+  //  Sends { closingDate: "YYYY-MM-DD" }
+  save: async (dateString) => {
+    const response = await adminHttp.post("/Courses/deadline", {
+      closingDate: dateString
+    });
+    return response.data;
+  },
 
-  remove: async () => (await adminHttp.delete("/Courses/deadline")).data,
+  // DELETE
+  remove: async () => {
+    await adminHttp.delete("/Courses/deadline");
+  }
 };

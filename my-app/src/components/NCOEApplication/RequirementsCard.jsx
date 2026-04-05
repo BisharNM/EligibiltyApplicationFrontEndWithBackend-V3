@@ -11,7 +11,7 @@ export default function RequirementsCard({course, subCourse }) {
   const compulsoryOL = olRules ? olRules.filter(r => r.status === true) : [];
   
   // Filter for Additional Docs
-  // We assume all configs in the DB are required, or you can filter by a 'required' flag if you added one
+  
   const requiredDocs = additionalConfigs || [];
 
   return (
@@ -25,7 +25,7 @@ export default function RequirementsCard({course, subCourse }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* --- 1. A/L REQUIREMENTS --- */}
+        {/*  1. A/L Requirements  */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center mb-2">
             <GraduationCap className="w-4 h-4 text-purple-600 mr-2" />
@@ -51,7 +51,7 @@ export default function RequirementsCard({course, subCourse }) {
           </ul>
         </div>
 
-        {/* --- 2. O/L REQUIREMENTS --- */}
+        {/*  2. O/L Requirements  */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center mb-2">
             <BookOpen className="w-4 h-4 text-green-600 mr-2" />
@@ -77,7 +77,7 @@ export default function RequirementsCard({course, subCourse }) {
                   <span className="text-xs text-gray-400 ml-1">(as of Jan 1st)</span>
                </li>
 
-        {/* --- 3. ADDITIONAL DOCS --- */}
+        {/*  3. Additional Docs  */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center mb-2">
             <FileCheck className="w-4 h-4 text-orange-600 mr-2" />

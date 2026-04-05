@@ -1,11 +1,25 @@
 import React from 'react';
 import { Users, CheckCircle, XCircle } from 'lucide-react';
-import { Clock } from '../Shared/Icons';
+import { Clock } from '../Shared/Icons'; 
 
-export default function StatsCards({ stats }) {
+export default function StatsCards({ stats, onFilterClick, activeFilter }) {
+  
+  
+  const getCardStyle = (filterName) => {
+    const isActive = activeFilter === filterName;
+    return `bg-white px-4 py-3 rounded-lg shadow-sm border transition cursor-pointer hover:shadow-md ${
+      isActive ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-200'
+    }`;
+  };
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div className="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200">
+      
+      
+      <div 
+        className={getCardStyle('ALL')}
+        onClick={() => onFilterClick('ALL')}
+      >
         <div className="flex items-center gap-3">
           <div className="bg-blue-100 p-2 rounded-lg">
             <Users className="text-blue-600" size={20}/>
@@ -17,7 +31,11 @@ export default function StatsCards({ stats }) {
         </div>
       </div>
       
-      <div className="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200">
+      {/* pending */}
+      <div 
+        className={getCardStyle('pending')}
+        onClick={() => onFilterClick('pending')}
+      >
         <div className="flex items-center gap-3">
           <div className="bg-yellow-100 p-2 rounded-lg">
             <Clock className="text-yellow-600" size={20}/>
@@ -29,7 +47,11 @@ export default function StatsCards({ stats }) {
         </div>
       </div>
       
-      <div className="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200">
+      {/* Approved */}
+      <div 
+        className={getCardStyle('approved')}
+        onClick={() => onFilterClick('approved')}
+      >
         <div className="flex items-center gap-3">
           <div className="bg-green-100 p-2 rounded-lg">
             <CheckCircle className="text-green-600" size={20}/>
@@ -41,7 +63,11 @@ export default function StatsCards({ stats }) {
         </div>
       </div>
       
-      <div className="bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200">
+      {/* Rejected */}
+      <div 
+        className={getCardStyle('rejected')}
+        onClick={() => onFilterClick('rejected')}
+      >
         <div className="flex items-center gap-3">
           <div className="bg-red-100 p-2 rounded-lg">
             <XCircle className="text-red-600" size={20}/>
@@ -52,6 +78,7 @@ export default function StatsCards({ stats }) {
           </div>
         </div>
       </div>
+
     </div>
   );
 }

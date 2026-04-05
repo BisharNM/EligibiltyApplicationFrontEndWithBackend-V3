@@ -1,39 +1,37 @@
 import React from 'react';
-import { FileText, Info } from 'lucide-react';
-import { MEDIUMS, AL_SUBJECTS_1, AL_SUBJECTS_2, AL_SUBJECTS_3, COURSES } from '../../constants';
+import { FileText, Calendar, Hash, Globe, BookOpen } from 'lucide-react';
 import GradeSelect from './shared/GradeSelect';
 
-const ALevelForm = ({ formData, onChange, activeTab, subTab }) => {
-  
-  // Helper to get the correct subject list based on the row number
-  const getSubjectList = (num) => {
-    if (num === 1) return AL_SUBJECTS_1;
-    if (num === 2) return AL_SUBJECTS_2;
-    return AL_SUBJECTS_3;
-  };
-
+export default function ALevelForm({ formData, onChange, subjects1, subjects2, subjects3 }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 transition-all hover:shadow-md">
       
-      {/* Header */}
-      <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center">
-        <div className="bg-blue-100 p-2 rounded-full mr-3">
-          <FileText className="w-5 h-5 text-blue-700" />
+      {/* Header Section */}
+      <div className="bg-blue-50/50 px-6 py-4 border-b border-blue-100 flex items-center">
+        <div className="p-2 bg-blue-100 text-blue-700 rounded-lg mr-3">
+          <FileText className="w-5 h-5" />
         </div>
-        <h3 className="text-lg font-bold text-blue-900">G.C.E A/L Results</h3>
+        <div>
+          <h3 className="text-lg font-bold text-gray-800">G.C.E A/L Results</h3>
+          <p className="text-xs text-gray-500">Enter your advanced level examination details</p>
+        </div>
       </div>
       
       <div className="p-6 space-y-6">
         
         {/* Top Row: Year, Z-Score, Medium */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Year</label>
+          
+          {/* Year Input */}
+          <div className="group">
+            <label className="flex items-center text-sm font-semibold text-gray-600 mb-2">
+              <Calendar className="w-4 h-4 mr-2 text-gray-400" /> Year
+            </label>
             <select 
               name="alYear" 
               value={formData.alYear} 
               onChange={onChange} 
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
+              className="w-full rounded-lg border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all border outline-none"
             >
               <option value="">Select Year</option>
               <option value="2023">2023</option>
@@ -41,129 +39,88 @@ const ALevelForm = ({ formData, onChange, activeTab, subTab }) => {
             </select>
           </div>
           
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Z-Score</label>
+          {/* Z-Score Input */}
+          <div className="group">
+            <label className="flex items-center text-sm font-semibold text-gray-600 mb-2">
+              <Hash className="w-4 h-4 mr-2 text-gray-400" /> Z-Score
+            </label>
             <input 
               required 
               type="number" 
               step="0.0001" 
               name="zScore" 
-              value={formData.zScore}
+              value={formData.zScore} 
               onChange={onChange} 
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
-              placeholder="e.g. 1.2500" 
+              placeholder="e.g. 1.2500"
+              className="w-full rounded-lg border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all border outline-none placeholder:text-gray-300" 
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Medium</label>
+          {/* Medium Input */}
+          <div className="group">
+            <label className="flex items-center text-sm font-semibold text-gray-600 mb-2">
+              <Globe className="w-4 h-4 mr-2 text-gray-400" /> Medium
+            </label>
             <select 
               name="alMedium" 
               value={formData.alMedium} 
               onChange={onChange} 
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
+              className="w-full rounded-lg border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all border outline-none"
             >
-              {MEDIUMS.map(m => <option key={m} value={m}>{m}</option>)}
+              <option value="Sinhala">Sinhala</option>
+              <option value="Tamil">Tamil</option>
+              <option value="English">English</option>
             </select>
           </div>
         </div>
 
         {/* Subjects Section */}
-        <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-          <label className="block text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">
-            Passed Subjects & Grades
-          </label>
-          
-          <div className="space-y-4">
-            {[1, 2, 3].map((num) => (
-              <div key={num} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start sm:items-center">
-                
-                {/* Subject Dropdown (Takes up 8/12 columns on desktop) */}
-                <div className="sm:col-span-8">
-                  <select 
-                    name={`alSubject${num}`} 
-                    value={formData[`alSubject${num}`]} 
-                    onChange={onChange} 
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
-                  >
-                    <option value="">-- Select Subject {num} --</option>
-                    {getSubjectList(num).map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
+        <div className="bg-gray-50/80 rounded-xl border border-gray-200 p-5">
+          <div className="flex items-center mb-4">
+            <BookOpen className="w-4 h-4 text-gray-500 mr-2" />
+            <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Passed Subjects & Grades</h4>
+          </div>
 
-                {/* Grade Dropdown (Takes up 4/12 columns on desktop) */}
-                <div className="sm:col-span-4">
-                  <GradeSelect 
-                    name={`alGrade${num}`} 
-                    value={formData[`alGrade${num}`]} 
-                    onChange={onChange} 
-                  />
-                </div>
-              </div>
-            ))}
+          <div className="space-y-4">
+            <SubjectRow num="1" options={subjects1} formData={formData} onChange={onChange} />
+            <SubjectRow num="2" options={subjects2} formData={formData} onChange={onChange} />
+            <SubjectRow num="3" options={subjects3} formData={formData} onChange={onChange} />
           </div>
         </div>
-
-        {/* Conditional: Art Ranking */}
-        {activeTab === COURSES.ART && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 animate-in fade-in slide-in-from-top-2">
-            <h4 className="text-sm font-bold text-yellow-800 mb-3 flex items-center">
-              <Info className="w-4 h-4 mr-2" /> Art Stream Requirements
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-yellow-700 uppercase mb-1">District</label>
-                <select 
-                  name="alDistrict" 
-                  value={formData.alDistrict} 
-                  onChange={onChange} 
-                  className="w-full rounded-md border-yellow-300 focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm p-2 border bg-white"
-                >
-                  <option value="">Select District</option>
-                  <option value="Colombo">Colombo</option>
-                  <option value="Gampaha">Gampaha</option>
-                  <option value="Kandy">Kandy</option>
-                  {/* Add all districts here */}
-                </select>
-              </div>
-              <div>
-                 {/* GradeSelect handles its own label logic, but we pass a label here */}
-                <GradeSelect 
-                  name="alSubjectGrade" 
-                  value={formData.alSubjectGrade} 
-                  onChange={onChange} 
-                  label={`Grade for ${subTab}`} 
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Conditional: English Literature */}
-        {(activeTab === COURSES.LANGUAGE_LIT && subTab === 'English Language & Literature') && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4 animate-in fade-in slide-in-from-top-2">
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <div className="w-full sm:w-2/3">
-                <label className="text-sm font-bold text-blue-900 block">
-                  General English Grade
-                </label>
-                <p className="text-xs text-blue-700 mt-1">
-                  Required if applying under clause 4.11.3 (General English + O/L English 'B')
-                </p>
-              </div>
-              <div className="w-full sm:w-1/3">
-                <GradeSelect 
-                  name="alGenEnglishGrade" 
-                  value={formData.alGenEnglishGrade} 
-                  onChange={onChange} 
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
-};
+}
 
-export default ALevelForm;
+
+const SubjectRow = ({ num, options, formData, onChange }) => (
+  <div className="grid grid-cols-12 gap-4 items-start sm:items-center bg-white p-3 rounded-lg border border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
+     
+      {/* Subject Select: Spans 8 cols on desktop, 12 on mobile */}
+     <div className="col-span-12 sm:col-span-8">
+       <select 
+         name={`alSubject${num}`} 
+         onChange={onChange} 
+         value={formData[`alSubject${num}`]} 
+         className="w-full rounded-md border-gray-300 bg-white py-2 pl-3 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 border outline-none cursor-pointer"
+       >
+          <option value="">-- Select Subject {num} --</option>
+          {options && options.map((sub) => (
+              <option key={sub.id} value={sub.name}>
+                  {sub.name}
+              </option>
+          ))}
+       </select>
+     </div>
+
+     {/* Grade Select: Spans 4 cols on desktop, 12 on mobile */}
+     <div className="col-span-12 sm:col-span-4">
+       <GradeSelect 
+         name={`alGrade${num}`} 
+         value={formData[`alGrade${num}`]} 
+         onChange={onChange} 
+         
+       />
+     </div>
+  </div>
+);

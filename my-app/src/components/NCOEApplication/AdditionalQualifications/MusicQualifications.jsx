@@ -15,7 +15,7 @@ const WesternMusicQualifications = ({ formData, onChange }) => {
       
       <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* 4.17.2.3 */}
+       
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-purple-900 mb-2">
             Passed Grade 5 Western Music (Theory & Practical) from recognized institute?
@@ -44,7 +44,7 @@ const WesternMusicQualifications = ({ formData, onChange }) => {
           </div>
         </div>
 
-        {/* 4.17.3.3 */}
+        
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-purple-900 mb-2">
             Passed Western Music as an <strong>Additional Subject</strong> at G.C.E (A/L)?

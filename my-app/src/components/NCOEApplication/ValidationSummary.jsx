@@ -6,9 +6,9 @@ export default function ValidationSummary({ errors, canApply, isSubmitting }) {
   return (
     <div className="mt-8 border-t-2 border-gray-100 pt-6">
       
-      {/* =========================================================
-          SCENARIO 1: NOT ELIGIBLE (Show Requirements Messages)
-         ========================================================= */}
+      {/* 
+           Not Eligible (Show Requirements Messages)
+          */}
       {!canApply && errors.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm animate-fade-in">
           
@@ -24,7 +24,7 @@ export default function ValidationSummary({ errors, canApply, isSubmitting }) {
             </div>
           </div>
 
-          {/* THE REQUIREMENT MESSAGES LIST */}
+          {/* The Requirement Messages List */}
           <ul className="bg-white rounded-lg border border-red-100 divide-y divide-red-50">
             {errors.map((errorMsg, idx) => (
               <li key={idx} className="p-3 flex items-start text-sm text-red-800">
@@ -42,9 +42,9 @@ export default function ValidationSummary({ errors, canApply, isSubmitting }) {
         </div>
       )}
 
-      {/* =========================================================
-          SCENARIO 2: ELIGIBLE (Show Success Message)
-         ========================================================= */}
+      {/* 
+          Eligible (Show Success Message)
+          */}
       {canApply && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-5 mb-6 shadow-sm flex items-center animate-fade-in">
           <div className="bg-green-100 p-2 rounded-full mr-3">
@@ -59,9 +59,9 @@ export default function ValidationSummary({ errors, canApply, isSubmitting }) {
         </div>
       )}
 
-      {/* =========================================================
-          SUBMIT BUTTON (Controlled by Eligibility)
-         ========================================================= */}
+      {/* 
+          Submit Button (Controlled by Eligibility)
+          */}
       <button 
         type="submit" 
         disabled={!canApply || isSubmitting} 
