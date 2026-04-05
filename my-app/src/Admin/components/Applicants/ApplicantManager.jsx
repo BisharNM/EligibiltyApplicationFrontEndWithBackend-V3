@@ -14,7 +14,7 @@ const toNumber = (v) => {
 
 export default function ApplicantManager({ applicants, courses ,setApplicants }) {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
-
+ const [filterMedium, setFilterMedium] = useState('ALL');
   const [filterCourse, setFilterCourse] = useState("ALL");       
   const [filterSubCourse, setFilterSubCourse] = useState("ALL"); 
   const [filterStatus, setFilterStatus] = useState("ALL");       
